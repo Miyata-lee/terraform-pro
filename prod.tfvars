@@ -1,6 +1,0 @@
-instance_type = "t2.micro"
-bucket_name   = "prod-bucket-ashiq"
-vpc_id        = "vpc-03afcfe41cc6a154c"
-subnet_id     = "subnet-02e4b8c8f7ffa1d7e"
-sg_name       = "SG-prod"
-key_name      = "keyweb"
