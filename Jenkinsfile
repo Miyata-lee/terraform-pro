@@ -3,33 +3,36 @@ pipeline {
 
     environment {
         AWS_REGION = 'us-east-1'
+        AWS_ACCESS_KEY_ID = credentials('AWS_ACCESS_KEY_ID')   // the ID you gave in Jenkins
+        AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
     }
 
     stages {
-        stage('All Terraform Stages') {
+        stage('Checkout') {
             steps {
-                // Wrap all Terraform commands with AWS credentials
-                withCredentials([
-                    string(credentialsId: 'aws-access-key', variable: 'AWS_ACCESS_KEY_ID'),
-                    string(credentialsId: 'aws-secret-key', variable: 'AWS_SECRET_ACCESS_KEY')
-                ]) {
-                    script {
-                        // Checkout
-                        git branch: 'main', url: 'https://github.com/Miyata-lee/terraform-pro.git'
+                // Pull your GitHub repo
+                git branch: 'main', url: 'https://github.com/Miyata-lee/terraform-pro.git'
+            }
+        }
 
-                        // Terraform Init
-                        sh 'terraform init'
+        stage('Terraform Init') {
+            steps {
+                // Initialize Terraform
+                sh 'terraform init'
+            }
+        }
 
-                        // Terraform Plan
-                        sh 'terraform plan'
+        stage('Terraform Plan') {
+            steps {
+                // Optional: see what Terraform will do
+                sh 'terraform plan'
+            }
+        }
 
-                        // Approval before apply
-                        input message: 'Approve Terraform Apply?'
-
-                        // Terraform Apply
-                        sh 'terraform apply -auto-approve'
-                    }
-                }
+        stage('Terraform Apply') {
+            steps {
+                // Apply the Terraform changes automatically
+                sh 'terraform apply'
             }
         }
     }
@@ -37,12 +40,6 @@ pipeline {
     post {
         always {
             echo 'Pipeline finished!'
-        }
-        success {
-            echo 'Terraform deployment completed successfully! ✅'
-        }
-        failure {
-            echo 'Pipeline failed 😢'
         }
     }
 }
